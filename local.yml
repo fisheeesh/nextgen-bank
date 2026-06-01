@@ -1,0 +1,33 @@
+services:
+  postgres:
+    # *  directive that going to tell docker to build the image from docker file
+    build:
+      # * context is the directory where the docker file is located
+      context: .
+      # * path to the docker file
+      dockerfile: ./backend/docker/local/postgres/Dockerfile
+    # * that is going to tell Docker to map the ports between the container and the host
+    # * the first port is the port on the host machine, and the second port is the port on the container
+    ports:
+      - "5432:5432"
+    # * volumens are used to persist data between container restarts, and also to share data between the host and the container
+    # * we can call the volume whatever we want
+    volumes:
+    # * /var/lib/postgresql/data is the path to the database data in the contianer
+    # * You get this path from the documentation on Docker Hub on Postgres
+      - nextgen_local_db:/var/lib/postgresql/data
+    # * define the env values we are going to be used
+    env_file:
+      - ./.envs/.env.local
+    # * we want all our containers to be running on the same network, so that the containers can talk to each other using the contiainer names
+    networks:
+      - nextgen_local_nw
+
+networks:
+  nextgen_local_nw: 
+  # * basically ths external tells Docker Compose that the network is already created and we should just use it
+  # * thereofore compose do not try to create it, meaning that it will be created out of hte scope of this compose file
+  external: true
+
+volumes:
+  nextgen_local_db:
