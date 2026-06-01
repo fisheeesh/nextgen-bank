@@ -25,9 +25,9 @@ services:
 
 networks:
   nextgen_local_nw: 
-  # * basically ths external tells Docker Compose that the network is already created and we should just use it
-  # * thereofore compose do not try to create it, meaning that it will be created out of hte scope of this compose file
-  external: true
+    # * basically ths external tells Docker Compose that the network is already created and we should just use it
+    # * thereofore compose do not try to create it, meaning that it will be created out of hte scope of this compose file
+    external: true
 
 volumes:
   nextgen_local_db:
