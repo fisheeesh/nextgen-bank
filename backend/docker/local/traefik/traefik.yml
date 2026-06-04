@@ -1,0 +1,45 @@
+# This is going to enable the API dashboard for monitoring and management
+api:
+  dashboard: : true
+  # In development, we let access to dashboard without authentication
+  insecure: true
+
+log:
+  level: DEBUG
+  format: json
+
+# This is gooing to be used to log any HTTP and HTTPS requests and responses that pass through traefik
+accessLog:
+  format: json
+  filePath: /var/log/traefik/access.log
+
+middlewares:
+  # First retry is the name of middleware
+  retry:
+    # Second retry is middleware type
+    retry:
+      attempts: 3
+      initialInterval: "500ms"
+
+# These are goiong to be used to specify the sources of the services and the routers
+providers:
+  # This is going to used to get the services and the routers from the Docker daemon
+  docker:
+    # This is goint to tell traefik how to connect to the docker daemon using unix socket(which is statdard way to do so)
+    endpoint: "unix:///var/run/docker.sock"
+    # This will tell traefix to watch for changes in Docker daemon and update the services and routers accordingly
+    watch: true
+    # This tell traefik to expose all the services and the routers by default
+    exposedByDefault: false
+    # Traefix will only discover and expose the services and routers running on this network
+    network: nextgen_local_nw
+
+# Entrypoints define the netwrok entry points that traefix is going to listen to for imcoming requests
+entryPoints:
+  # The name of the entry point
+  web:
+    # Traefix is going to listen to for HTTP requests
+    # : before 80 menas listen on all available network interfaces
+    address: ":80"
+
+    
