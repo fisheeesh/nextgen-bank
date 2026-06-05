@@ -1,4 +1,74 @@
 services:
+  traefik:
+    image: docker.io/traefik:v3
+    # ? Tells docker to restart the container unless it is stopped by the user
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      # ? the dashboard port for the the traffic dashboard
+      - "8080:8080"
+    environment:
+      DOCKER_API_VERSION: "1.47"
+    volumes:
+      # ? the path to doker socket, this is the standard way to connect to the Docker deemon on the unix based systems
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # ? the path to the traefik configuration file (traefik.yml)
+      - ./backend/docker/local/traefik/traefik.yml:/etc/traefik/traefik.yml
+    networks:
+      - nextgen_local_nw
+    command:
+      # ? A directive that is going to tell Docker to run the traefix contianer with a specified command
+      # ? this tells traefik to use the Docker provider
+      - --providers.docker
+
+  # $ anchors in YAML files allow us to reuse configuration across other services to avoid redundancy
+  api: &api
+    build:
+      context: .
+      dockerfile: ./backend/docker/local/fastapi/Dockerfile
+    volumes:
+      # ? this will map everything within our current directory to the /src directory
+      - .:/src
+      - ./backend/app/logs:/src/backend/app/logs
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./.envs/.env.local
+    depends_on:
+      - postgres
+      - mailpit
+    command: /start.sh
+    networks:
+      - nextgen_local_nw
+    # ? labels in traefik are just used to configure traefik's routing and service discovery
+    labels:
+      # ? This tells traefik to include this api service in its routing and service discovery
+      # ! If it is false, then traefik will ignore this container completely
+      - "traefik.enable=true"
+      # ? This tells traefik to ue the web entry point to route traefix to the api service
+      - "traefik.http.routers.api.entrypoints=web"
+      # ? This tells traefix to use a specific host to route traffic to this api service
+      - "traefik.http.routers.api.rule=Host(`api.localhost`)"
+      # ? requests go to api.localhosut, they are going to be routed or forwarded to api-service
+      - "traefik.http.routers.api.service=api-service"
+      # ? from api.localhoust is going to be forwarded to port 8000 on the api service
+      - "traefik.http.services.api-service.loadbalancer.server.port=8000"
+  
+  mailpit:
+    image: docker.io/axllent/mailpit:v1.20.3
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    volumes:
+      - nextgen_mailpit_data:/data
+    environment:
+      MP_MAX_MESSAGES: 5000
+      MP_DATA_FILE: /data/mailpit.db
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+    networks:
+      - nextgen_local_nw
+
   postgres:
     # *  directive that going to tell docker to build the image from docker file
     build:
@@ -13,21 +83,22 @@ services:
     # * volumens are used to persist data between container restarts, and also to share data between the host and the container
     # * we can call the volume whatever we want
     volumes:
-    # * /var/lib/postgresql/data is the path to the database data in the contianer
-    # * You get this path from the documentation on Docker Hub on Postgres
+      # * /var/lib/postgresql/data is the path to the database data in the contianer
+      # * You get this path from the documentation on Docker Hub on Postgres
       - nextgen_local_db:/var/lib/postgresql/data
     # * define the env values we are going to be used
     env_file:
       - ./.envs/.env.local
-    # * we want all our containers to be running on the same network, so that the containers can talk to each other using the contiainer names
+      # * we want all our containers to be running on the same network, so that the containers can talk to each other using the contiainer names
     networks:
       - nextgen_local_nw
 
 networks:
-  nextgen_local_nw: 
+  nextgen_local_nw:
     # * basically ths external tells Docker Compose that the network is already created and we should just use it
     # * thereofore compose do not try to create it, meaning that it will be created out of hte scope of this compose file
     external: true
 
 volumes:
   nextgen_local_db:
+  nextgen_mailpit_data:

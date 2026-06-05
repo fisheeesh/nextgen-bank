@@ -1,6 +1,6 @@
 # $ This is going to enable the API dashboard for monitoring and management
 api:
-  dashboard: : true
+  dashboard: true
   # ? In development, we let access to dashboard without authentication
   insecure: true
 
