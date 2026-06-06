@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
+from scalar_fastapi import get_scalar_api_reference
 
 from .api.main import api_router
 from .core.config import settings
@@ -86,6 +87,14 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     lifespan=lifespan,
 )
+
+
+@app.get("/scalar", include_in_schema=False)
+async def scalar_html():
+    return get_scalar_api_reference(
+        openapi_url=app.openapi_url,
+        title=f"{settings.PROJECT_NAME} API Documentation",
+    )
 
 
 @app.get("/health", response_model=dict)
