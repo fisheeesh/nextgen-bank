@@ -15,6 +15,8 @@ FLOWER_CMD="celery \
     --basic_auth=${CELERY_FLOWER_USER}:${CELERY_FLOWER_PASSWORD}"
     
 exec watchfiles \
-    --filer python \
-    --ignore_paths '.venv,.git,__pycache__,*.pyc' \
-    "${FLOWER_CMD}"
+    --filter python \
+    --ignore-paths '.venv,.git,__pycache__,*.pyc' \
+    --target-type command \
+    "${FLOWER_CMD}" \
+    /src

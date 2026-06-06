@@ -6,4 +6,8 @@ set -o nounset
 
 set -o pipefail
 
-exec watchfiles --filter python celery.__main__main --args '-A backend.app.core.celery_app beat -l INFO'
+exec watchfiles \
+    --filter python \
+    --target-type command \
+    "celery -A backend.app.core.celery_app beat -l INFO" \
+    /src
