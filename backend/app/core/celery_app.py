@@ -1,5 +1,5 @@
 from celery import Celery
-from backend.app.core.config import settings
+from .config import settings
 
 # $ rabbitmq as connection string and redis as result backend
 
@@ -61,7 +61,7 @@ celery_app.conf.update(
 
 #  $ configure celery to automically discover the tasks
 celery_app.autodiscover_tasks(
-    packages=["backend.app.core.emails"],
+    packages=["app.core"],
     related_name="tasks",
     force=True
 )

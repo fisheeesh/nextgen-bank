@@ -3,9 +3,9 @@ from typing import Dict, Any, Callable, Awaitable, Optional
 from datetime import datetime, timedelta, timezone
 from enum import Enum
 from sqlalchemy import text
-from backend.app.core.db import async_session
-from backend.app.core.celery_app import celery_app
-from backend.app.core.logging import get_logger
+from .db import async_session
+from .celery_app import celery_app
+from .logging import get_logger
 
 logger = get_logger()
 
@@ -104,7 +104,7 @@ class HealthCheck:
             if not workers:
                 conn = celery_app.connection()
                 try:
-                    conn.ensuer_connection(max_retries=3)
+                    conn.ensure_connection(max_retries=3)
                     logger.warning("No celery workers found, but Rabbitmq is reachable")
                     self._last_check["celery"] = datetime.now(timezone.utc)
                     return True
