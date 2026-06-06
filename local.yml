@@ -4,22 +4,22 @@ services:
     # ? Tells docker to restart the container unless it is stopped by the user
     restart: unless-stopped
     ports:
-      - "80:80"
-      # ? the dashboard port for the the traffic dashboard
-      - "8080:8080"
+    - "80:80"
+    # ? the dashboard port for the the traffic dashboard
+    - "8080:8080"
     environment:
       DOCKER_API_VERSION: "1.47"
     volumes:
-      # ? the path to doker socket, this is the standard way to connect to the Docker deemon on the unix based systems
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      # ? the path to the traefik configuration file (traefik.yml)
-      - ./backend/docker/local/traefik/traefik.yml:/etc/traefik/traefik.yml
+    # ? the path to doker socket, this is the standard way to connect to the Docker deemon on the unix based systems
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    # ? the path to the traefik configuration file (traefik.yml)
+    - ./backend/docker/local/traefik/traefik.yml:/etc/traefik/traefik.yml
     networks:
-      - nextgen_local_nw
+    - nextgen_local_nw
     command:
-      # ? A directive that is going to tell Docker to run the traefix contianer with a specified command
-      # ? this tells traefik to use the Docker provider
-      - --providers.docker
+    # ? A directive that is going to tell Docker to run the traefix contianer with a specified command
+    # ? this tells traefik to use the Docker provider
+    - --providers.docker
 
   # $ anchors in YAML files allow us to reuse configuration across other services to avoid redundancy
   api: &api
@@ -27,47 +27,49 @@ services:
       context: .
       dockerfile: ./backend/docker/local/fastapi/Dockerfile
     volumes:
-      # ? this will map everything within our current directory to the /src directory
-      - .:/src
-      - ./backend/app/logs:/src/backend/app/logs
+    # ? this will map everything within our current directory to the /src directory
+    - .:/src
+    - ./backend/app/logs:/src/backend/app/logs
     ports:
-      - "8000:8000"
+    - "8000:8000"
     env_file:
-      - ./.envs/.env.local
+    - ./.envs/.env.local
     depends_on:
-      - postgres
-      - mailpit
+    - postgres
+    - mailpit
+    - redis
+    - rabbitmq
     command: /start.sh
     networks:
-      - nextgen_local_nw
+    - nextgen_local_nw
     # ? labels in traefik are just used to configure traefik's routing and service discovery
     labels:
-      # ? This tells traefik to include this api service in its routing and service discovery
-      # ! If it is false, then traefik will ignore this container completely
-      - "traefik.enable=true"
-      # ? This tells traefik to ue the web entry point to route traefix to the api service
-      - "traefik.http.routers.api.entrypoints=web"
-      # ? This tells traefix to use a specific host to route traffic to this api service
-      - "traefik.http.routers.api.rule=Host(`api.localhost`)"
-      # ? requests go to api.localhosut, they are going to be routed or forwarded to api-service
-      - "traefik.http.routers.api.service=api-service"
-      # ? from api.localhoust is going to be forwarded to port 8000 on the api service
-      - "traefik.http.services.api-service.loadbalancer.server.port=8000"
-  
+    # ? This tells traefik to include this api service in its routing and service discovery
+    # ! If it is false, then traefik will ignore this container completely
+    - "traefik.enable=true"
+    # ? This tells traefik to ue the web entry point to route traefix to the api service
+    - "traefik.http.routers.api.entrypoints=web"
+    # ? This tells traefix to use a specific host to route traffic to this api service
+    - "traefik.http.routers.api.rule=Host(`api.localhost`)"
+    # ? requests go to api.localhosut, they are going to be routed or forwarded to api-service
+    - "traefik.http.routers.api.service=api-service"
+    # ? from api.localhoust is going to be forwarded to port 8000 on the api service
+    - "traefik.http.services.api-service.loadbalancer.server.port=8000"
+
   mailpit:
     image: docker.io/axllent/mailpit:v1.20.3
     ports:
-      - "8025:8025"
-      - "1025:1025"
+    - "8025:8025"
+    - "1025:1025"
     volumes:
-      - nextgen_mailpit_data:/data
+    - nextgen_mailpit_data:/data
     environment:
       MP_MAX_MESSAGES: 5000
       MP_DATA_FILE: /data/mailpit.db
       MP_SMTP_AUTH_ACCEPT_ANY: 1
       MP_SMTP_AUTH_ALLOW_INSECURE: 1
     networks:
-      - nextgen_local_nw
+    - nextgen_local_nw
 
   postgres:
     # *  directive that going to tell docker to build the image from docker file
@@ -79,19 +81,72 @@ services:
     # * that is going to tell Docker to map the ports between the container and the host
     # * the first port is the port on the host machine, and the second port is the port on the container
     ports:
-      - "5432:5432"
+    - "5432:5432"
     # * volumens are used to persist data between container restarts, and also to share data between the host and the container
     # * we can call the volume whatever we want
     volumes:
-      # * /var/lib/postgresql/data is the path to the database data in the contianer
-      # * You get this path from the documentation on Docker Hub on Postgres
-      - nextgen_local_db:/var/lib/postgresql/data
+    # * /var/lib/postgresql/data is the path to the database data in the contianer
+    # * You get this path from the documentation on Docker Hub on Postgres
+    - nextgen_local_db:/var/lib/postgresql/data
     # * define the env values we are going to be used
     env_file:
-      - ./.envs/.env.local
-      # * we want all our containers to be running on the same network, so that the containers can talk to each other using the contiainer names
+    - ./.envs/.env.local
+    # * we want all our containers to be running on the same network, so that the containers can talk to each other using the contiainer names
     networks:
-      - nextgen_local_nw
+    - nextgen_local_nw
+
+  redis:
+    image: docker.io/redis:7.0-alpine
+    # ? --appendonly yes -> enable append only file which is a good practise for production environments
+    # ? as it ensures that the data is not lost in the case of a crash or when redis restarts
+    command: redis-server --appendonly yes
+    networks:
+    - nextgen_local_nw
+
+  rabbitmq:
+    image: docker.io/rabbitmq:3.13-management
+    ports:
+    # ? the port for rabbitmq management ui
+    - "15672:15672"
+    # ? rabbitmq uses it for the broker, also the same port for celery worker to connect with rabbitmq broker to send and receive messages
+    - "5672:5672"
+    volumes:
+    - nextgen_rabbitmq_data:/var/lib/rabbitmq
+    networks:
+    - nextgen_local_nw
+    labels:
+    - "traefik.enable=true"
+    - "traefik.http.routers.rabbitmq.entrypoints=web"
+    - "traefik.http.routers.rabbitmq.rule=Host(`rabbitmq.localhost`)"
+    - "traefik.http.routers.rabbitmq.service=rabbitmq-service"
+    - "traefik.http.services.rabbitmq-servie.loadbalancer.server.port=15672"
+
+  celeryworker:
+    <<: *api
+    ports: []
+    command: /start-celeryworker.sh
+
+  flower:
+    <<: *api
+    ports:
+    - "5555:5555"
+    volumes:
+    - nextgen_flower_data:/data
+    command: /start-flower.sh
+    depends_on:
+    - redis
+    - rabbitmq
+    labels:
+    - "traefik.enable=true"
+    - "traefik.http.routers.flower.entrypoints=web"
+    - "traefik.http.routers.flower.rule=Host(`flower.localhost`)"
+    - "traefik.http.routers.flower.service=flower-service"
+    - "traefik.http.services.flower-servie.loadbalancer.server.port=5555"
+
+  celerybeat:
+  <<: *api
+  ports: []
+  command: /start-celerybeat.sh
 
 networks:
   nextgen_local_nw:
@@ -102,3 +157,5 @@ networks:
 volumes:
   nextgen_local_db:
   nextgen_mailpit_data:
+  nextgen_rabbitmq_data:
+  nextgen_flower_data:
