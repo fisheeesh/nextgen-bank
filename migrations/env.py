@@ -1,5 +1,7 @@
 import asyncio
+import sys
 from logging.config import fileConfig
+from pathlib import Path
 
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
@@ -7,9 +9,13 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
-from backend.app.core.config import settings
-from backend.app.core.model_registry import load_models
-from sqlmodel import SQLModel
+BACKEND_DIR = Path(__file__).resolve().parents[1] / "backend"
+if str(BACKEND_DIR) not in sys.path:
+    sys.path.insert(0, str(BACKEND_DIR))
+
+from app.core.config import settings # type: ignore  # noqa: E402
+from app.core.model_registry import load_models # type: ignore  # noqa: E402
+from sqlmodel import SQLModel  # noqa: E402
 
 load_models()
 

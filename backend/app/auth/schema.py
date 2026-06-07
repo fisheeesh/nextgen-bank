@@ -25,7 +25,7 @@ class SecurityQuestionsSchema(str, Enum):
 
 
 class AccountStatusSchema(str, Enum):
-    ACTIVe = "active"
+    ACTIVE = "active"
     INACTIVE = "inactive"
     LOCKED = "locked"
     PENDING = "pending"

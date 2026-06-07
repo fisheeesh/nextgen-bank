@@ -25,9 +25,9 @@ def discover_models() -> list[str]:
             module_path = rel_path.replace(os.path.sep, ".")
 
             if module_path == ".":
-                full_module_path = "backend.app.modules"
+                full_module_path = "app.models"
             else:
-                full_module_path = f"backend.app.{module_path}.models"
+                full_module_path = f"app.{module_path}.models"
 
             logger.debug(f"Discovered models file in: {full_module_path}")
 
