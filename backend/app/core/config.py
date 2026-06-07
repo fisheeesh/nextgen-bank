@@ -1,6 +1,7 @@
 from pathlib import Path
-from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Literal
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # * points to src/
 BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent

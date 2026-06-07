@@ -1,9 +1,11 @@
 import uuid
 from datetime import datetime, timezone
-from sqlmodel import Field, Column
+
 from pydantic import computed_field
+from sqlalchemy import func, text
 from sqlalchemy.dialects import postgresql as pg
-from sqlalchemy import text, func
+from sqlmodel import Column, Field
+
 from .schema import BaseUserSchema, RoleChoicesSchema
 
 

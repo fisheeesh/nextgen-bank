@@ -9,6 +9,8 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from app.core.config import settings
 from app.core.logging import get_logger
 
+from .model_registry import load_models
+
 logger = get_logger()
 
 """
@@ -79,6 +81,10 @@ by attemption to connect to the database three times, with a delay of
 
 async def init_db() -> None:
     try:
+        load_models()
+
+        logger.info("Models loaded successfully")
+
         max_retries = 3
         retry_delay = 2
 
