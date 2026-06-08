@@ -1,3 +1,4 @@
+import uuid
 from enum import Enum
 
 from fastapi import HTTPException, status
@@ -73,3 +74,22 @@ class UserCreateSchema(BaseUserSchema):
                 },
             )
         return v
+
+
+class UserReadSchema(BaseUserSchema):
+    id: uuid.UUID
+    full_name: str
+
+
+class EmailRequestSchema(SQLModel):
+    email: EmailStr
+
+
+class LoginRequestSchema(SQLModel):
+    email: EmailStr
+    password: str = Field(min_length=8, max_length=40)
+
+
+class OTPVerifyRequestSchema(SQLModel):
+    email: EmailStr
+    otp: str = Field(min_length=6, max_length=6)
