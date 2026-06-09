@@ -3,7 +3,7 @@ from ..emails.base import EmailTemplate
 
 
 class ActivationEmail(EmailTemplate):
-    template_name = "activation_html"
+    template_name = "activation.html"
     template_name_plain = "activation.txt"
     subject = "Activate your Account"
 

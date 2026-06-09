@@ -36,7 +36,7 @@ def generate_username() -> str:
     prefix = "".join([word[0] for word in words]).upper()
     # ? 12 means username support to be 12 characters long
     # ? -1 means we are gonna add - between prefix and randmon string
-    remaining_length = 12 - len(*prefix) - 1
+    remaining_length = 12 - len(prefix) - 1
     random_string = "".join(
         random.choices(string.ascii_uppercase + string.digits, k=remaining_length)
     )

@@ -72,7 +72,7 @@ class UserAuthService:
         email: str,
         session: AsyncSession,
     ) -> bool:
-        user = await self.get_user_by_email(email, session)
+        user = await self.get_user_by_email(email, session, include_inactive=True)
 
         return bool(user)
 
@@ -80,8 +80,8 @@ class UserAuthService:
         self,
         id_no: int,
         session: AsyncSession,
-    ):
-        user = await self.get_user_by_id_no(id_no, session)
+    ) -> bool:
+        user = await self.get_user_by_id_no(id_no, session, include_inactive=True)
 
         return bool(user)
 

@@ -61,7 +61,7 @@ celery_app.conf.update(
 
 #  $ configure celery to automically discover the tasks
 celery_app.autodiscover_tasks(
-    packages=["app.core"],
+    packages=["app.core.emails"],
     related_name="tasks",
-    force=True
+    force=True,
 )

@@ -23,7 +23,7 @@ logger = get_logger()
 )
 def send_email_task(
     self,
-    *recipients: list[str],
+    recipients: list[str],
     subject: str,
     html_content: str,
     plain_content: str,
