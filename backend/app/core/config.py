@@ -56,7 +56,7 @@ class Settings(BaseSettings):
     # ? this specifies whether the cookie should be sent with requests to the same site
     # ? lax -> this cookie is gonna be sent with request to the same site, but not with requests to subdomains
     COOKIE_SAMESITE: str = "lax"
-    # ? cookie is gonna be available for the specified path and its above
+    # ? cookie is gonna be available for the specified path and its subs
     # ? / -> the cookie is gonna be available for the root path and its sub-paths
     COOKIE_PATH: str = "/"
     # ? use to sign JWT tokens to make them tamper resistant
