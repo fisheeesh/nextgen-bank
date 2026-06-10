@@ -44,4 +44,7 @@ END
 
 >&2 echo 'PostgreSQL is ready to accept connection'
 
+# ? This is going to ensure that we run our migrations before starting the application
+alembic upgrade head
+
 exec "$@"
