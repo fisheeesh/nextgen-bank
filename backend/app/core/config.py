@@ -62,5 +62,7 @@ class Settings(BaseSettings):
     # ? use to sign JWT tokens to make them tamper resistant
     SIGNING_KEY: str = ""
 
+    PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES: int = 3 if ENVIRONMENT == "local" else 5
+
 
 settings = Settings()
