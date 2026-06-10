@@ -1,11 +1,10 @@
 from fastapi import APIRouter, HTTPException, Response, status
 
-from backend.app.api.dependencies import SessionDep
-
 from ....auth.schema import LoginRequestSchema, OTPVerifyRequestSchema
 from ....auth.utils import create_jwt_token, set_auth_cookies
 from ....core.config import settings
 from ....core.logging import get_logger
+from ...dependencies import SessionDep
 from ...services.user_auth import user_auth_service
 
 logger = get_logger()
