@@ -1,0 +1,73 @@
+from fastapi import APIRouter, HTTPException, status
+
+from ....api.dependencies import SessionDep
+from ....api.services.user_auth import user_auth_service
+from ....auth.schema import PasswordResetConfirmSchema, PasswordResetRequestSchema
+from ....core.logging import get_logger
+from ....core.services.password_reset import send_password_reset_email
+
+logger = get_logger()
+
+router = APIRouter(prefix="/auth")
+
+
+@router.post("/request-password-reset", status_code=status.HTTP_200_OK)
+async def request_password_reset(
+    reset_data: PasswordResetRequestSchema,
+    session: SessionDep,
+):
+    try:
+        user = await user_auth_service.get_user_by_email(
+            reset_data.email, session, include_inactive=True
+        )
+
+        if user:
+            await send_password_reset_email(user.email, user.id)
+
+        return {
+            "message": "If an account exists with this email, you will recieve password reset instructions shortly"
+        }
+    except Exception as e:
+        logger.error(f"Password reset request failed: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "status": "error",
+                "message": "Failed to process password reset request",
+                "action": "Please try again later",
+            },
+        )
+
+
+@router.post("/reset-password/{token}", status_code=status.HTTP_200_OK)
+async def reset_password(
+    token: str,
+    reset_data: PasswordResetConfirmSchema,
+    session: SessionDep,
+):
+    try:
+        await user_auth_service.reset_password(
+            token,
+            reset_data.new_password,
+            session,
+        )
+        return {"message": "Passwrod has been reset successfully"}
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "status": "error",
+                "message": str(e),
+                "action": "Please request a new password rest link",
+            },
+        )
+    except Exception as e:
+        logger.error(f"Password reset failed: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "status": "error",
+                "message": "Failed to reset password",
+                "action": "Please try again later",
+            },
+        )
