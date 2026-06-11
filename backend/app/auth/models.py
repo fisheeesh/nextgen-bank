@@ -1,12 +1,16 @@
+from typing import TYPE_CHECKING
 import uuid
 from datetime import datetime, timezone
 
 from pydantic import computed_field
 from sqlalchemy import func, text
 from sqlalchemy.dialects import postgresql as pg
-from sqlmodel import Column, Field
+from sqlmodel import Column, Field, Relationship
 
 from .schema import BaseUserSchema, RoleChoicesSchema
+
+if TYPE_CHECKING:
+    from ..user_profile.models import Profile
 
 
 class User(BaseUserSchema, table=True):
@@ -41,6 +45,17 @@ class User(BaseUserSchema, table=True):
             nullable=False,
             onupdate=func.current_timestamp(),
         ),
+    )
+
+    profile: "Profile" = Relationship(
+        back_populates="user",
+        sa_relationship_kwargs={
+            # ? This tells use the relationship is 1 to 1 relationship
+            # ? If we dun specify, sqlmodel will asuume one to many
+            "uselist": False,
+            # ? for eager loading
+            "lazy": "selectin",
+        },
     )
 
     # $ set some fields that are not going to be stored in the database, but computed on other fields
