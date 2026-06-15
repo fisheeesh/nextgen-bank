@@ -11,6 +11,7 @@ from .core.config import settings
 from .core.db import engine, init_db
 from .core.health import ServiceStatus, health_checker
 from .core.logging import get_logger
+from .core.rate_limit.middleware import RateLimitMiddleware
 
 logger = get_logger()
 
@@ -124,5 +125,8 @@ async def health_check():
             },
         )
 
+
+# * Make sure to add the middleware before the routes
+app.add_middleware(RateLimitMiddleware)
 
 app.include_router(api_router, prefix=settings.API_V1_STR)

@@ -9,7 +9,7 @@ class RateLimitConfig(BaseModel):
 
 DEFAULT_RATE_LIMITS = {
     "/api/v1/auth/login/request-otp": RateLimitConfig(
-        max_requests=2,
+        max_requests=10,
         window_seconds=300,
     ),
     "api/v1/auth/register": RateLimitConfig(
