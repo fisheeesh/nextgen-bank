@@ -39,7 +39,7 @@ async def get_my_profile(
             middle_name=user_with_profile.middle_name or "",
             last_name=user_with_profile.last_name or "",
             email=user_with_profile.email or "",
-            id_no=str(user_with_profile) if user_with_profile.id_no else "",
+            id_no=str(user_with_profile.id_no) if user_with_profile.id_no else "",
             profile=user_with_profile.profile,
             role=user_with_profile.role,
         )
