@@ -6,7 +6,7 @@ from sqlmodel import select
 from ...core.logging import get_logger
 from ...user_profile.models import Profile
 from ...user_profile.schema import ProfileCreateSchema
-from ..dependencies import SessionDep
+from ..routes.auth.deps import SessionDep
 
 logger = get_logger()
 

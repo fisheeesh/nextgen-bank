@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
 
-from ....api.dependencies import SessionDep
+from .deps import SessionDep
 from ....api.services.user_auth import user_auth_service
 from ....auth.schema import PasswordResetConfirmSchema, PasswordResetRequestSchema
 from ....core.logging import get_logger

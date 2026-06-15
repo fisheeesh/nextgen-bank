@@ -12,9 +12,11 @@ from ....core.logging import get_logger
 
 logger = get_logger()
 
+SessionDep = Annotated[AsyncSession, Depends(get_session)]
+
 
 async def get_current_user(
-    session: AsyncSession = Depends(get_session),
+    session: SessionDep,
     access_token: str | None = Cookie(None, alias=settings.COOKIE_ACCESS_NAME),
 ) -> User:
     if not access_token:

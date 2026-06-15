@@ -1,7 +1,7 @@
 import jwt
 from fastapi import APIRouter, Cookie, HTTPException, Response, status
 
-from ....api.dependencies import SessionDep
+from .deps import SessionDep
 from ....api.services.user_auth import user_auth_service
 from ....auth.utils import create_jwt_token, set_auth_cookies
 from ....core.config import settings

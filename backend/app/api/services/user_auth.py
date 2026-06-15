@@ -2,7 +2,7 @@ import asyncio
 import uuid
 from datetime import datetime, timedelta, timezone
 
-from ...api.dependencies import SessionDep
+from ..routes.auth.deps import SessionDep
 import jwt
 from fastapi import HTTPException, status
 from sqlmodel import select

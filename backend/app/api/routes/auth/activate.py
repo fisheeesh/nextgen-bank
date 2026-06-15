@@ -5,7 +5,7 @@ from ....auth.utils import create_activation_token
 from ....core.config import settings
 from ....core.logging import get_logger
 from ....core.services.activation_email import send_activation_email
-from ...dependencies import SessionDep
+from .deps import SessionDep
 from ...services.user_auth import user_auth_service
 
 logger = get_logger()
