@@ -25,7 +25,7 @@ class UploadResponse(TypedDict):
     max_retries=3,
     soft_time_limit=10,
     # ? retry for any exceptions
-    autoretry_for=(Exception),
+    autoretry_for=(Exception,),
     # ? determine if our taks should retry with exponential backoff
     retry_backoff=True,
     retry_backoff_max=60,
