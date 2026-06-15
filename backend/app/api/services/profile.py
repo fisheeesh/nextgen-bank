@@ -1,9 +1,10 @@
 import uuid
 
 from fastapi import HTTPException, status
-from sqlmodel import select
+from sqlmodel import col, select
 
 from ...auth.models import User
+from ...auth.schema import RoleChoicesSchema
 from ...core.logging import get_logger
 from ...core.tasks.image_upload import upload_profile_image_task
 from ...user_profile.models import Profile
@@ -219,4 +220,53 @@ async def get_user_with_profile(user_id: uuid.UUID, session: SessionDep) -> User
                 "status": "error",
                 "message": "Failed to fetch user with profile.",
             },
+        )
+
+
+async def get_all_user_profiles(
+    session: SessionDep,
+    current_user: User,
+    skip: int = 0,
+    limit: int = 20,
+) -> tuple[list[User], int]:
+    try:
+        if current_user.role != RoleChoicesSchema.BRANCH_MANAGER:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail={
+                    "status": "error",
+                    "message": "Access denied",
+                    "action": "ONly branch managers can access all profiles"
+                }
+            )
+        
+        count_statement = select(User)
+        result = await session.exec(count_statement)
+
+        total_count = len(result.all())
+
+        statement = (
+            select(User).offset(skip).limit(limit).order_by(col(User.created_at).desc())
+        )
+
+        result = await session.exec(statement)
+
+        users = result.all()
+
+        # ? load users profile relationship for each user
+        for user in users: 
+            await session.refresh(user, ["profile"])
+
+        return list(users), total_count
+    except HTTPException as http_ex:
+        raise http_ex
+    except Exception as e:
+        logger.error(f"Error fetching all user profiles: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "status": "error",
+                "message": "Failed to fetch user profiles",
+                "action": "Please try again later"
+            }
         )
