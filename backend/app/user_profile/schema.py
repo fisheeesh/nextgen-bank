@@ -1,11 +1,12 @@
 from datetime import date
 from enum import Enum
 
+from pydantic import field_validator
 from pydantic_extra_types.country import CountryShortName
 from pydantic_extra_types.phone_numbers import PhoneNumber
 from sqlmodel import Field, SQLModel
 
-from pydantic import field_validator
+from ..auth.schema import RoleChoicesSchema
 from .utils import validate_id_dates
 
 
@@ -111,3 +112,19 @@ class ImageTypeSchema(str, Enum):
     PROFILE_PHOTO = "profile_photo"
     ID_PHOTO = "id_photo"
     SIGNATURE_PHOTO = "signature_photo"
+
+
+class ProfileResponseSchema(SQLModel):
+    username: str
+    first_name: str
+    middle_name: str
+    last_name: str
+    email: str
+    id_no: str
+    role: RoleChoicesSchema
+    profile: ProfileBaseSchema | None
+
+    # ? help us convert the database objects to a response object
+    class Config:
+        from_attributes = True
+
