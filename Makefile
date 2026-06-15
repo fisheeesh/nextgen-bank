@@ -17,7 +17,7 @@ makemigrations:
 	docker compose -f local.yml exec -it api alembic revision --autogenerate -m "$(name)"
 
 migrate:
-	docker compose -f local.yml exec -it alembic upgrade head
+	docker compose -f local.yml exec -it api alembic upgrade head
 
 history:
 	docker compose -f local.yml exec -it api alembic history

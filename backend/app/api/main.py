@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 from .routes import home
 from .routes.auth import activate, login, password_reset, refresh, register, logout
-from .routes.profile import create
+from .routes.profile import create, update
 
 api_router = APIRouter()
 
@@ -18,3 +18,4 @@ api_router.include_router(logout.router, tags=["Auth"])
 
 # ? Profile routes
 api_router.include_router(create.router, tags=["Profile"])
+api_router.include_router(update.router, tags=["Profile"])
