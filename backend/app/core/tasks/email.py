@@ -1,9 +1,9 @@
 from fastapi_mail import MessageSchema, MessageType, MultipartSubtypeEnum
 
-from ...core.celery_app import celery_app
+from ..celery_app import celery_app
 import asyncio
-from ...core.logging import get_logger
-from .config import fastmail
+from ..logging import get_logger
+from ..emails.config import fastmail
 
 logger = get_logger()
 

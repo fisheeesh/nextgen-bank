@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Literal
 
+import cloudinary
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 # * points to src/
@@ -61,8 +62,21 @@ class Settings(BaseSettings):
     COOKIE_PATH: str = "/"
     # ? use to sign JWT tokens to make them tamper resistant
     SIGNING_KEY: str = ""
-
     PASSWORD_RESET_TOKEN_EXPIRATION_MINUTES: int = 3 if ENVIRONMENT == "local" else 5
+
+    CLOUDINARY_CLOUD_NAME: str = ""
+    CLOUDINARY_API_KEY: str = ""
+    CLOUDINARY_SECRET_KEY: str = ""
+
+    ALLOWED_MIME_TYPES: list[str] = ["image/jpeg", "image/png", "image/jpg"]
+    MAX_FILE_SIZE: int = 5 * 1024 * 1024
+    MAX_DIENSION: int = 4096
 
 
 settings = Settings()
+
+cloudinary.config(
+    cloud_name=settings.CLOUDINARY_CLOUD_NAME,
+    api_key=settings.CLOUDINARY_API_KEY,
+    api_secret=settings.CLOUDINARY_API_KEY,
+)

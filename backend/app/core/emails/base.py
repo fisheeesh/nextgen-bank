@@ -2,7 +2,7 @@ from jinja2 import Environment, FileSystemLoader
 
 from ...core.logging import get_logger
 from .config import TEMPLATES_DIR
-from .tasks import send_email_task
+from ..tasks.email import send_email_task
 
 logger = get_logger()
 
