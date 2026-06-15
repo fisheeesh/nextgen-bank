@@ -62,6 +62,7 @@ class ProfileBaseSchema(SQLModel):
     employement_status: EmploymentStatusSchema
     employer_name: str
     employer_address: str
+    employer_city: str | None = Field(default=None)
     employer_country: CountryShortName
     annual_income: float
     date_of_employment: date
@@ -97,6 +98,7 @@ class ProfileUpdateSchema(ProfileBaseSchema):
     employement_status: EmploymentStatusSchema | None = None
     employer_name: str | None = None
     employer_address: str | None = None
+    employer_city: str | None = None
     employer_country: CountryShortName | None = None
     annual_income: float | None = None
     date_of_employment: date | None = None
