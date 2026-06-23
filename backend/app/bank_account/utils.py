@@ -19,15 +19,25 @@ def get_currency_code(currency: AccountCurrencyEnum) -> str:
         AccountCurrencyEnum.GBP: settings.CURRENCY_CODE_GBP,
         AccountCurrencyEnum.EUR: settings.CURRENCY_CODE_EUR,
         AccountCurrencyEnum.KES: settings.CURRENCY_CODE_KES,
+        AccountCurrencyEnum.THB: settings.CURRENCY_CODE_THB,
     }
     currency_code = currency_codes.get(currency)
 
-    if not currency_code:
+    if currency not in currency_codes:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
                 "status": "error",
-                "message": f"Invalide currecny: {currency}",
+                "message": f"Unsupported currency: {currency.value}",
+            },
+        )
+
+    if not currency_code:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "status": "error",
+                "message": f"Currency code not configured for {currency.value}",
             },
         )
 

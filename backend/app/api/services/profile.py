@@ -174,7 +174,7 @@ async def update_profile_image_url(
         field_name = field_mapping.get(image_type)
 
         if not field_name:
-            raise ValueError(f"Invalide image type: {image_type}")
+            raise ValueError(f"Invalid image type: {image_type}")
 
         setattr(profile, field_name, image_url)
 

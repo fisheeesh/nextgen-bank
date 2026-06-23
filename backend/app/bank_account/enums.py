@@ -3,7 +3,7 @@ from enum import Enum
 
 class AccountTypeEnum(str, Enum):
     Current = "current"
-    Savings = "savinsg"
+    Savings = "savings"
     FixedDeposit = "fixed_deposit"
     Business = "business"
 

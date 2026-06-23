@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from .routes import home
 from .routes.auth import activate, login, logout, password_reset, refresh, register
+from .routes.bank_account import create as create_bank_account
 from .routes.next_of_kin import all
 from .routes.next_of_kin import (
     create as create_next_of_kin,
@@ -31,8 +32,11 @@ api_router.include_router(upload.router, tags=["Profile"])
 api_router.include_router(me.router, tags=["Profile"])
 api_router.include_router(all_profiles.router, tags=["Profile"])
 
-# ? Crate Next of Kin routes
+# ? Next of Kin routes
 api_router.include_router(create_next_of_kin.router, tags=["Next Of Kin"])
 api_router.include_router(all.router, tags=["Next Of Kin"])
 api_router.include_router(update_next_of_kin.router, tags=["Next Of Kin"])
 api_router.include_router(delete_next_of_kin.router, tags=["Next Of Kin"])
+
+# ? Bank Account routes
+api_router.include_router(create_bank_account.router, tags=["Bank Account"])

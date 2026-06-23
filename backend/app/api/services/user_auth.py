@@ -243,7 +243,7 @@ class UserAuthService:
             )
 
             if payload.get("type") != "activation":
-                raise ValueError("Invalide token type")
+                raise ValueError("Invalid token type")
 
             user_id = uuid.UUID(payload["id"])
 
@@ -309,7 +309,7 @@ class UserAuthService:
             if not user:
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail={"status": "error", "message": "Invalide credentials"},
+                    detail={"status": "error", "message": "Invalid credentials"},
                 )
 
             await self.validate_user_status(user)

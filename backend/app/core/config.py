@@ -78,6 +78,7 @@ class Settings(BaseSettings):
     CURRENCY_CODE_EUR: str = ""
     CURRENCY_CODE_GBP: str = ""
     CURRENCY_CODE_KES: str = ""
+    CURRENCY_CODE_THB: str = ""
 
     MAX_BANK_ACCOUNTS: int = 3
 

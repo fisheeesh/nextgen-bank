@@ -42,6 +42,17 @@ target_metadata = SQLModel.metadata
 # ... etc.
 
 
+def compare_type(context, inspected_column, metadata_column, inspected_type, metadata_type):
+    inspected_enums = getattr(inspected_type, "enums", None)
+    metadata_enums = getattr(metadata_type, "enums", None)
+
+    if inspected_enums is not None and metadata_enums is not None:
+        if tuple(inspected_enums) == tuple(metadata_enums):
+            return False
+
+    return None
+
+
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
 
@@ -58,6 +69,7 @@ def run_migrations_offline() -> None:
     context.configure(
         url=url,
         target_metadata=target_metadata,
+        compare_type=compare_type,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
     )
@@ -67,7 +79,11 @@ def run_migrations_offline() -> None:
 
 
 def do_run_migrations(connection: Connection) -> None:
-    context.configure(connection=connection, target_metadata=target_metadata)
+    context.configure(
+        connection=connection,
+        target_metadata=target_metadata,
+        compare_type=compare_type,
+    )
 
     with context.begin_transaction():
         context.run_migrations()
