@@ -12,6 +12,7 @@ from .schema import BaseUserSchema, RoleChoicesSchema
 if TYPE_CHECKING:
     from ..user_profile.models import Profile
     from ..next_of_kin.models import NextOfKin
+    from ..bank_account.models import BankAccount
 
 
 class User(BaseUserSchema, table=True):
@@ -59,6 +60,8 @@ class User(BaseUserSchema, table=True):
         },
     )
     next_of_kins: list["NextOfKin"] = Relationship(back_populates="user")
+
+    bank_accounts: list["BankAccount"] = Relationship(back_populates="user")
 
     # $ set some fields that are not going to be stored in the database, but computed on other fields
     @computed_field
