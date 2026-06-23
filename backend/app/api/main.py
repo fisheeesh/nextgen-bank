@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from .routes import home
 from .routes.auth import activate, login, logout, password_reset, refresh, register
 from .routes.profile import all_profiles, create, me, update, upload
+from .routes.next_of_kin import create as create_next_of_kin
 
 api_router = APIRouter()
 
@@ -22,3 +23,6 @@ api_router.include_router(update.router, tags=["Profile"])
 api_router.include_router(upload.router, tags=["Profile"])
 api_router.include_router(me.router, tags=["Profile"])
 api_router.include_router(all_profiles.router, tags=["Profile"])
+
+# ? Crate Next of Kin routes
+api_router.include_router(create_next_of_kin.router, tags=["Next Of Kin"])
