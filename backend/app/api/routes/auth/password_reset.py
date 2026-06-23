@@ -51,7 +51,7 @@ async def reset_password(
             reset_data.new_password,
             session,
         )
-        return {"message": "Passwrod has been reset successfully"}
+        return {"message": "Password has been reset successfully"}
     except ValueError as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

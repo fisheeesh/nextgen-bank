@@ -15,7 +15,7 @@ router = APIRouter(prefix="/bank-account")
 
 
 @router.patch(
-    "/{account_id}",
+    "/{account_id}/activate",
     response_model=BankAccountReadSchema,
     status_code=status.HTTP_200_OK,
     description="Activate a bank account after KYC verification. Only accessible to account executives",
