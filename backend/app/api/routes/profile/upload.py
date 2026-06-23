@@ -3,7 +3,7 @@ from fastapi import APIRouter, File, HTTPException, UploadFile, status
 from ....core.celery_app import celery_app
 from ....core.logging import get_logger
 from ....core.utils.image import validate_image
-from ....user_profile.enums import ImageTypeSchema
+from ....user_profile.enums import ImageTypeEnum
 from ...routes.auth.deps import CurrentUser, SessionDep
 from ...services.profile import (
     initiate_image_upload,
@@ -17,7 +17,7 @@ logger = get_logger()
 
 @router.post("/upload/{image_type}", status_code=status.HTTP_202_ACCEPTED)
 async def upload_profile_image(
-    image_type: ImageTypeSchema,
+    image_type: ImageTypeEnum,
     current_user: CurrentUser,
     file: UploadFile = File(...),
 ) -> dict:
@@ -77,7 +77,7 @@ async def get_upload_status(
 
                 await update_profile_image_url(
                     user_id=current_user.id,
-                    image_type=ImageTypeSchema(result["image_type"]),
+                    image_type=ImageTypeEnum(result["image_type"]),
                     image_url=result["url"],
                     session=session,
                 )

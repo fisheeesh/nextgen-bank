@@ -4,9 +4,9 @@ services:
     # ? Tells docker to restart the container unless it is stopped by the user
     restart: unless-stopped
     ports:
-    - "80:80"
+    - "18080:80"
     # ? the dashboard port for the the traffic dashboard
-    - "8080:8080"
+    - "18081:8080"
     environment:
       DOCKER_API_VERSION: "1.47"
     volumes:
@@ -31,7 +31,7 @@ services:
     - .:/src
     - ./backend/app/logs:/src/backend/app/logs
     ports:
-    - "8000:8000"
+    - "18000:8000"
     env_file:
     - ./.envs/.env.local
     depends_on:
@@ -44,6 +44,7 @@ services:
     - nextgen_local_nw
     # $ labels in traefik are just used to configure traefik's routing and service discovery
     labels:
+    - "nextgen-bank.traefik.scope=local"
     # ? This tells traefik to include this api service in its routing and service discovery
     # ! If it is false, then traefik will ignore this container completely
     - "traefik.enable=true"
@@ -64,8 +65,8 @@ services:
   mailpit:
     image: docker.io/axllent/mailpit:v1.20.3
     ports:
-    - "8025:8025"
-    - "1025:1025"
+    - "18025:8025"
+    - "11025:1025"
     volumes:
     - nextgen_mailpit_data:/data
     environment:
@@ -86,7 +87,7 @@ services:
     # * that is going to tell Docker to map the ports between the container and the host
     # * the first port is the port on the host machine, and the second port is the port on the container
     ports:
-    - "5432:5432"
+    - "15432:5432"
     # * volumens are used to persist data between container restarts, and also to share data between the host and the container
     # * we can call the volume whatever we want
     volumes:
@@ -112,14 +113,15 @@ services:
     image: docker.io/rabbitmq:3.13-management
     ports:
     # ? the port for rabbitmq management ui
-    - "15672:15672"
+    - "15673:15672"
     # ? rabbitmq uses it for the broker, also the same port for celery worker to connect with rabbitmq broker to send and receive messages
-    - "5672:5672"
+    - "15674:5672"
     volumes:
     - nextgen_rabbitmq_data:/var/lib/rabbitmq
     networks:
     - nextgen_local_nw
     labels:
+    - "nextgen-bank.traefik.scope=local"
     - "traefik.enable=true"
     - "traefik.http.routers.rabbitmq.entrypoints=web"
     - "traefik.http.routers.rabbitmq.rule=Host(`rabbitmq.localhost`)"
@@ -129,12 +131,14 @@ services:
   celeryworker:
     <<: *api
     ports: []
+    labels:
+    - "traefik.enable=false"
     command: /start-celeryworker.sh
 
   flower:
     <<: *api
     ports:
-    - "5555:5555"
+    - "15555:5555"
     volumes:
     - nextgen_flower_data:/data
     command: /start-flower.sh
@@ -142,6 +146,7 @@ services:
     - redis
     - rabbitmq
     labels:
+    - "nextgen-bank.traefik.scope=local"
     - "traefik.enable=true"
     - "traefik.http.routers.flower.entrypoints=web"
     - "traefik.http.routers.flower.rule=Host(`flower.localhost`)"
@@ -151,6 +156,8 @@ services:
   celerybeat:
     <<: *api
     ports: []
+    labels:
+    - "traefik.enable=false"
     command: /start-celerybeat.sh
 
 networks:

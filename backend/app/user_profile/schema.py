@@ -7,23 +7,23 @@ from sqlmodel import Field, SQLModel
 
 from ..auth.schema import RoleChoicesSchema
 from .enums import (
-    EmploymentStatusSchema,
-    GenderSchema,
-    IdentificationTypeSchema,
-    MaritalStatusSchema,
-    SalutaionSchema,
+    EmploymentStatusEnum,
+    GenderEnum,
+    IdentificationTypeEnum,
+    MaritalStatusEnum,
+    SalutaionEnum,
 )
 from .utils import validate_id_dates
 
 
 class ProfileBaseSchema(SQLModel):
-    title: SalutaionSchema
-    gender: GenderSchema
+    title: SalutaionEnum
+    gender: GenderEnum
     date_of_birth: date
     country_of_birth: CountryShortName
     place_of_birth: str
-    marital_status: MaritalStatusSchema
-    means_of_identification: IdentificationTypeSchema
+    marital_status: MaritalStatusEnum
+    means_of_identification: IdentificationTypeEnum
     id_issue_date: date
     id_expiry_date: date
     passport_number: str
@@ -32,7 +32,7 @@ class ProfileBaseSchema(SQLModel):
     address: str
     city: str
     country: str
-    employement_status: EmploymentStatusSchema
+    employement_status: EmploymentStatusEnum
     employer_name: str
     employer_address: str
     employer_city: str | None = Field(default=None)
@@ -53,13 +53,13 @@ class ProfileCreateSchema(ProfileBaseSchema):
 
 
 class ProfileUpdateSchema(ProfileBaseSchema):
-    title: SalutaionSchema | None = None
-    gender: GenderSchema | None = None
+    title: SalutaionEnum | None = None
+    gender: GenderEnum | None = None
     date_of_birth: date | None = None
     country_of_birth: CountryShortName | None = None
     place_of_birth: str | None = None
-    marital_status: MaritalStatusSchema | None = None
-    means_of_identification: IdentificationTypeSchema | None = None
+    marital_status: MaritalStatusEnum | None = None
+    means_of_identification: IdentificationTypeEnum | None = None
     id_issue_date: date | None = None
     id_expiry_date: date | None = None
     passport_number: str | None = None
@@ -68,7 +68,7 @@ class ProfileUpdateSchema(ProfileBaseSchema):
     address: str | None = None
     city: str | None = None
     country: str | None = None
-    employement_status: EmploymentStatusSchema | None = None
+    employement_status: EmploymentStatusEnum | None = None
     employer_name: str | None = None
     employer_address: str | None = None
     employer_city: str | None = None
@@ -81,7 +81,6 @@ class ProfileUpdateSchema(ProfileBaseSchema):
         if v is not None and "id_issue_date" in values.data:
             validate_id_dates(values.data["id_issue_date"], v)
         return v
-
 
 
 class ProfileResponseSchema(SQLModel):

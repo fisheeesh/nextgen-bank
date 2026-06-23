@@ -7,7 +7,7 @@ from ...auth.models import User
 from ...auth.schema import RoleChoicesSchema
 from ...core.logging import get_logger
 from ...core.tasks.image_upload import upload_profile_image_task
-from ...user_profile.enums import ImageTypeSchema
+from ...user_profile.enums import ImageTypeEnum
 from ...user_profile.models import Profile
 from ...user_profile.schema import (
     ProfileCreateSchema,
@@ -128,7 +128,7 @@ Image upload process will be done in 2 steps
 
 def initiate_image_upload(
     file_content: bytes,
-    image_type: ImageTypeSchema,
+    image_type: ImageTypeEnum,
     content_type: str,
     user_id: uuid.UUID,
 ) -> str:
@@ -151,7 +151,7 @@ def initiate_image_upload(
 
 async def update_profile_image_url(
     user_id: uuid.UUID,
-    image_type: ImageTypeSchema,
+    image_type: ImageTypeEnum,
     image_url: str,
     session: SessionDep,
 ) -> Profile:
@@ -167,9 +167,9 @@ async def update_profile_image_url(
                 },
             )
         field_mapping = {
-            ImageTypeSchema.PROFILE_PHOTO: "profile_photo_url",
-            ImageTypeSchema.ID_PHOTO: "id_photo_url",
-            ImageTypeSchema.SIGNATURE_PHOTO: "signature_photo_url",
+            ImageTypeEnum.PROFILE_PHOTO: "profile_photo_url",
+            ImageTypeEnum.ID_PHOTO: "id_photo_url",
+            ImageTypeEnum.SIGNATURE_PHOTO: "signature_photo_url",
         }
         field_name = field_mapping.get(image_type)
 
