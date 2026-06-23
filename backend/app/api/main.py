@@ -2,12 +2,11 @@ from fastapi import APIRouter
 
 from .routes import home
 from .routes.auth import activate, login, logout, password_reset, refresh, register
-from .routes.next_of_kin import (
-    all,
-)
+from .routes.next_of_kin import all
 from .routes.next_of_kin import (
     create as create_next_of_kin,
 )
+from .routes.next_of_kin import delete as delete_next_of_kin
 from .routes.next_of_kin import (
     update as update_next_of_kin,
 )
@@ -36,3 +35,4 @@ api_router.include_router(all_profiles.router, tags=["Profile"])
 api_router.include_router(create_next_of_kin.router, tags=["Next Of Kin"])
 api_router.include_router(all.router, tags=["Next Of Kin"])
 api_router.include_router(update_next_of_kin.router, tags=["Next Of Kin"])
+api_router.include_router(delete_next_of_kin.router, tags=["Next Of Kin"])
