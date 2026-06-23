@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from .routes import home
 from .routes.auth import activate, login, logout, password_reset, refresh, register
+from .routes.bank_account import activate as activate_bank_account
 from .routes.bank_account import create as create_bank_account
 from .routes.next_of_kin import all
 from .routes.next_of_kin import (
@@ -40,3 +41,4 @@ api_router.include_router(delete_next_of_kin.router, tags=["Next Of Kin"])
 
 # ? Bank Account routes
 api_router.include_router(create_bank_account.router, tags=["Bank Account"])
+api_router.include_router(activate_bank_account.router, tags=["Bank Account"])
