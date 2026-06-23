@@ -7,9 +7,9 @@ from ...auth.models import User
 from ...auth.schema import RoleChoicesSchema
 from ...core.logging import get_logger
 from ...core.tasks.image_upload import upload_profile_image_task
+from ...user_profile.enums import ImageTypeSchema
 from ...user_profile.models import Profile
 from ...user_profile.schema import (
-    ImageTypeSchema,
     ProfileCreateSchema,
     ProfileUpdateSchema,
 )

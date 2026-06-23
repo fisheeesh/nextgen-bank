@@ -3,7 +3,7 @@ from fastapi import APIRouter, File, HTTPException, UploadFile, status
 from ....core.celery_app import celery_app
 from ....core.logging import get_logger
 from ....core.utils.image import validate_image
-from ....user_profile.schema import ImageTypeSchema
+from ....user_profile.enums import ImageTypeSchema
 from ...routes.auth.deps import CurrentUser, SessionDep
 from ...services.profile import (
     initiate_image_upload,
