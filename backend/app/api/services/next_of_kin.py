@@ -95,3 +95,24 @@ async def create_next_of_kin(
                 "message": "Faild to create next of kin",
             },
         )
+
+
+async def get_user_next_of_kins(
+    user_id: UUID,
+    session: AsyncSession,
+) -> list[NextOfKin]:
+    try:
+        statement = select(NextOfKin).where(NextOfKin.user_id == user_id)
+        result = await session.exec(statement)
+        next_of_kins = list(result.all())
+
+        return next_of_kins
+    except Exception as e:
+        logger.error(f"Failed to retrieve next of kins: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail={
+                "status": "error",
+                "message": "Faild to get user next of kins",
+            },
+        )

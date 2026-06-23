@@ -40,5 +40,5 @@ async def create_next_of_kin_route(
         logger.error(f"Internal server error: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={"status": "error", "message": "Failed "},
+            detail={"status": "error", "message": "Failed to create of kin"},
         )
