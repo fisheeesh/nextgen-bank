@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from ..user_profile.models import Profile
     from ..next_of_kin.models import NextOfKin
     from ..bank_account.models import BankAccount
+    from ..transactions.models import Transaction
 
 
 class User(BaseUserSchema, table=True):
@@ -62,6 +63,21 @@ class User(BaseUserSchema, table=True):
     next_of_kins: list["NextOfKin"] = Relationship(back_populates="user")
 
     bank_accounts: list["BankAccount"] = Relationship(back_populates="user")
+
+    sent_transactions: list["Transaction"] = Relationship(
+        back_populates="sender",
+        sa_relationship_kwargs={"foreign_keys": "Transaction.sender_id"},
+    )
+
+    received_transactions: list["Transaction"] = Relationship(
+        back_populates="receiver",
+        sa_relationship_kwargs={"foreign_keys": "Transaction.receiver_id"},
+    )
+
+    processed_transactions: list["Transaction"] = Relationship(
+        back_populates="processor",
+        sa_relationship_kwargs={"foreign_keys": "Transaction.processed_by"},
+    )
 
     # $ set some fields that are not going to be stored in the database, but computed on other fields
     @computed_field

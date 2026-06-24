@@ -10,6 +10,7 @@ from .schema import BankAccountBaseSchema
 
 if TYPE_CHECKING:
     from ..auth.models import User
+    from ..transactions.models import Transaction
 
 
 class BankAccount(BankAccountBaseSchema, table=True):
@@ -46,3 +47,13 @@ class BankAccount(BankAccountBaseSchema, table=True):
     user_id: uuid.UUID = Field(foreign_key="user.id", ondelete="CASCADE")
 
     user: "User" = Relationship(back_populates="bank_accounts")
+
+    sent_transactions: list["Transaction"] = Relationship(
+        back_populates="sender_account",
+        sa_relationship_kwargs={"foreign_keys": "Transaction.sender_account_id"},
+    )
+
+    received_transactions: list["Transaction"] = Relationship(
+        back_populates="receiver_account",
+        sa_relationship_kwargs={"foreign_keys": "Transaction.receiver_account_id"},
+    )
