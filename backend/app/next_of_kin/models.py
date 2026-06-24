@@ -22,7 +22,7 @@ class NextOfKin(NextOfKinBaseSchema, table=True):
         ),
         default_factory=uuid.uuid4,
     )
-    create_at: datetime = Field(
+    created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc),
         sa_column=Column(
             pg.TIMESTAMP(timezone=True),

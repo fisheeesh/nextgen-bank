@@ -51,7 +51,7 @@ def upgrade() -> None:
         sa.Column("is_primary", sa.Boolean(), nullable=False),
         sa.Column("id", sa.UUID(), nullable=False),
         sa.Column(
-            "create_at",
+            "created_at",
             postgresql.TIMESTAMP(timezone=True),
             server_default=sa.text("CURRENT_TIMESTAMP"),
             nullable=False,

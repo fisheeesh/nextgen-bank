@@ -54,7 +54,7 @@ async def create_deposit(
                 account_number=account.account_number,
                 currency=currency_value,
                 description=transaction.description,
-                transaction_date=transaction.completed_at or transaction.create_at,
+                transaction_date=transaction.completed_at or transaction.created_at,
                 reference=transaction.reference,
                 balance=transaction.balance_after,
             )
