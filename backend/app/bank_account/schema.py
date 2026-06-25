@@ -37,6 +37,6 @@ class BankAccountReadSchema(BankAccountBaseSchema):
 
 
 class BankAccountUpdateSchema(BankAccountBaseSchema):
-    account_nmae: str | None = None
+    account_name: str | None = None
     is_primary: bool | None = None
     account_status: AccountStatusEnum | None = None
