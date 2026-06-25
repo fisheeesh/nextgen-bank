@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 from decimal import Decimal
 
+from fastapi import Query
 from sqlalchemy.dialects import postgresql as pg
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import Column, Field, SQLModel
@@ -93,3 +94,60 @@ class WithdrawalRequestSchema(SQLModel):
     amount: Decimal = Field(ge=0, decimal_places=2)
     username: str = Field(min_length=1, max_length=12)
     description: str = Field(max_length=250)
+
+
+class TransactionHistoryResponseSchema(SQLModel):
+    id: uuid.UUID
+    reference: str
+    amount: Decimal
+    description: str
+    transaction_type: TransactionTypeEnum
+    transaction_category: TransactionCategoryEnum
+    created_at: datetime
+    completed_at: datetime | None = None
+    balance_after: Decimal
+    currency: str | None = None
+    converted_amount: str | None = None
+    from_currency: str | None = None
+    to_currency: str | None = None
+    counterparty_name: str | None = None
+    counterparty_account: str | None = None
+
+
+class PaginatedTransactionResponseSchema(SQLModel):
+    total: int
+    skip: int
+    limit: int
+    transactions: list[TransactionHistoryResponseSchema]
+
+
+class TransactionFilterParmasSchema(SQLModel):
+    start_date: datetime | None = Query(
+        default=None,
+        description="Filter transaction from this date(inclusive)",
+        example="2026-01-01T00:00:00Z",
+    )
+    end_date: datetime | None = Query(
+        default=None,
+        description="Filter transaction until thsi date(inclusive)",
+        example="2026-12-01T00:00:00Z",
+    )
+    transaction_type: TransactionTypeEnum | None = Query(
+        default=None, description="Filter by transaction type"
+    )
+    transaction_category: TransactionCategoryEnum | None = Query(
+        default=None, description="Filter by transaction category"
+    )
+    status: TransactionStatusEnum | None = Query(
+        default=None, description="Filter by transaction status"
+    )
+    min_amount: Decimal | None = Query(
+        default=None,
+        ge=0,
+        description="Filter transactions with amount greter than or equal to this value",
+    )
+    max_amount: Decimal | None = Query(
+        default=None,
+        ge=0,
+        description="Filter transactions with amount less than or equal to this value",
+    )
