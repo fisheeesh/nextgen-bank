@@ -11,13 +11,13 @@ from .enums import (
     GenderEnum,
     IdentificationTypeEnum,
     MaritalStatusEnum,
-    SalutaionEnum,
+    SalutationEnum,
 )
 from .utils import validate_id_dates
 
 
 class ProfileBaseSchema(SQLModel):
-    title: SalutaionEnum
+    title: SalutationEnum
     gender: GenderEnum
     date_of_birth: date
     country_of_birth: CountryShortName
@@ -53,7 +53,7 @@ class ProfileCreateSchema(ProfileBaseSchema):
 
 
 class ProfileUpdateSchema(ProfileBaseSchema):
-    title: SalutaionEnum | None = None
+    title: SalutationEnum | None = None
     gender: GenderEnum | None = None
     date_of_birth: date | None = None
     country_of_birth: CountryShortName | None = None

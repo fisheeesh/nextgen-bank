@@ -78,7 +78,7 @@ class Transaction(TransactionBaseSchema, table=True):
         back_populates="received_transactions",
         sa_relationship_kwargs={"foreign_keys": "Transaction.receiver_account_id"},
     )
-    sender: "User" = Relationship(
+    sender: "User" = Relationship( 
         back_populates="sent_transactions",
         sa_relationship_kwargs={"foreign_keys": "Transaction.sender_id"},
     )
@@ -90,6 +90,12 @@ class Transaction(TransactionBaseSchema, table=True):
         back_populates="processed_transactions",
         sa_relationship_kwargs={"foreign_keys": "Transaction.processed_by"},
     )
+
+
+"""
+Idempotency is an API call or operation is idempotent if it produces the same result,
+regardless of how many times it is excuted
+"""
 
 
 class IdempotencyKey(SQLModel, table=True):
@@ -121,7 +127,7 @@ class IdempotencyKey(SQLModel, table=True):
             server_default=text("CURRENT_TIMESTAMP"),
         ),
     )
-    expies_at: datetime = Field(
+    expires_at: datetime = Field(
         sa_column=Column(
             pg.TIMESTAMP(timezone=True),
             nullable=False,

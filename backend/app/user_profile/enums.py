@@ -1,10 +1,13 @@
 from enum import Enum
 
 
-class SalutaionEnum(str, Enum):
+class SalutationEnum(str, Enum):
     Mr = "Mr"
     Mrs = "Mrs"
     Miss = "Miss"
+
+
+SalutaionEnum = SalutationEnum
 
 
 class GenderEnum(str, Enum):

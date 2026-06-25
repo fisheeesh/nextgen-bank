@@ -37,17 +37,17 @@ class EmailTemplate:
             html_content = html_templates.render(**context)
             plain_content = plain_template.render(**context)
 
-            taks = send_email_task.delay(
+            task = send_email_task.delay(
                 recipients=recipients_list,
                 subject=subject_override or cls.subject,
                 html_content=html_content,
                 plain_content=plain_content,
             )
 
-            logger.info(f"Email task {taks.id} queued for: {recipients_list}")
+            logger.info(f"Email task {task.id} queued for: {recipients_list}")
 
         except Exception as e:
             logger.error(
-                f"Failed to queue email taks for {recipients_list}: Error: {str(e)}"
+                f"Failed to queue email task for {recipients_list}: Error: {str(e)}"
             )
             raise
