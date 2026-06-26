@@ -13,7 +13,6 @@ logger = get_logger()
 
 router = APIRouter(prefix="/transactions")
 
-
 @router.get(
     "/history",
     response_model=PaginatedTransactionResponseSchema,

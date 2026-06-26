@@ -4,7 +4,7 @@ from .routes import home
 from .routes.auth import activate, login, logout, password_reset, refresh, register
 from .routes.bank_account import activate as activate_bank_account
 from .routes.bank_account import create as create_bank_account
-from .routes.bank_account import deposit, transfer, withdrawal, transaction_history
+from .routes.bank_account import deposit, transfer, withdrawal, transaction_history, statement
 from .routes.next_of_kin import all
 from .routes.next_of_kin import (
     create as create_next_of_kin,
@@ -47,3 +47,4 @@ api_router.include_router(deposit.router, tags=["Bank Account"])
 api_router.include_router(transfer.router, tags=["Bank Account"])
 api_router.include_router(withdrawal.router, tags=["Bank Account"])
 api_router.include_router(transaction_history.router, tags=["Bank Account"])
+api_router.include_router(statement.router, tags=["Bank Account"])
