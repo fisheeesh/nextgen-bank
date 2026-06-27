@@ -60,6 +60,6 @@ class BankAccount(BankAccountBaseSchema, table=True):
     )
 
     virtual_cards: list["VirtualCard"] = Relationship(
-        back_populates="bank_acount",
+        back_populates="bank_account",
         sa_relationship_kwargs={"cascade": "all, delete-orphan"},
     )

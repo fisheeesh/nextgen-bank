@@ -1,8 +1,7 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, status
-from pytz import timezone
 
 from ....core.logging import get_logger
 from ....core.services.card_blocked import send_card_blocked_email

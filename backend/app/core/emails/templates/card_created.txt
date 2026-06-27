@@ -19,5 +19,5 @@ Your virtual card has been created successfully and is pending activation. Here 
 IMPORTANT: Your card is currently inactive. Our account executives will review
     and activate your card shortly. You'll receive another email once your card is activated and ready for use.
 
-For security reasons, your card's CVV will be provided separetely upon activation.
+For security reasons, your card's CVV will be provided separately upon activation.
 {% endblock %}

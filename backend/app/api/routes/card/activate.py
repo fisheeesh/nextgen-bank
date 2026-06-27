@@ -9,7 +9,7 @@ from ..auth.deps import CurrentUser, SessionDep
 
 logger = get_logger()
 
-router = APIRouter(prefix="/virtal-card")
+router = APIRouter(prefix="/virtual-card")
 
 
 @router.patch(

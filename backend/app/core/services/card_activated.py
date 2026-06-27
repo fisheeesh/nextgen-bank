@@ -25,7 +25,7 @@ async def send_card_activated_email(
         "full_name": full_name,
         "card_type": card_type,
         "currency": currency,
-        "maksed_card_number": masked_card_number,
+        "masked_card_number": masked_card_number,
         "cvv": cvv,
         "daily_limit": daily_limit,
         "monthly_limit": monthly_limit,
@@ -33,7 +33,7 @@ async def send_card_activated_email(
         "available_balance": available_balance,
         "site_name": settings.SITE_NAME,
         "support_email": settings.SUPPORT_EMAIL,
-        "activated_at": datetime.now().strftime("%Y-%m%-d %H:%M:%S UTC"),
+        "activated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC"),
     }
 
     await VirtualCardActivatedEmail.send_email(email_to=email, context=context)

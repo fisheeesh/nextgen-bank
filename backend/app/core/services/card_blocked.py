@@ -6,7 +6,7 @@ from ..emails.base import EmailTemplate
 class VirtualCardBlockedEmail(EmailTemplate):
     template_name = "card_blocked.html"
     template_name_plain = "card_blocked.txt"
-    subject = "Your Virtual Card Has been Blocked"
+    subject = "Your Virtual Card Has Been Blocked"
 
 
 async def send_card_blocked_email(
@@ -21,12 +21,12 @@ async def send_card_blocked_email(
     context = {
         "full_name": full_name,
         "card_type": card_type,
-        "maksed_card_number": masked_card_number,
-        "blocked_reason": block_reason,
-        "blocked_reason_description": block_reason_description,
+        "masked_card_number": masked_card_number,
+        "block_reason": block_reason,
+        "block_reason_description": block_reason_description,
         "site_name": settings.SITE_NAME,
         "support_email": settings.SUPPORT_EMAIL,
-        "blocked_at": blocked_at.strftime("%Y-%m%-d %H:%M:%S UTC"),
+        "blocked_at": blocked_at.strftime("%Y-%m-%d %H:%M:%S UTC"),
     }
 
     await VirtualCardBlockedEmail.send_email(email_to=email, context=context)

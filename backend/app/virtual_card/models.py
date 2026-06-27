@@ -44,16 +44,14 @@ class VirtualCard(VirtualCardBaseSchema, table=True):
         default=None,
         sa_column=Column(
             pg.TIMESTAMP(timezone=True),
-            nullable=False,
-            sever_default=text("CURRENT_TIMESTAMP"),
+            nullable=True,
         ),
     )
     blocked_at: datetime | None = Field(
         default=None,
         sa_column=Column(
             pg.TIMESTAMP(timezone=True),
-            nullable=False,
-            sever_default=text("CURRENT_TIMESTAMP"),
+            nullable=True,
         ),
     )
     total_spend_today: float = Field(default=0.0)

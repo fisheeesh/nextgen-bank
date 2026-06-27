@@ -32,7 +32,7 @@ def validate_uuid4(value: str) -> str:
 
 
 @router.post(
-    "/{card_id}/top-id",
+    "/{card_id}/top-up",
     response_model=CardTopUpResponseSchema,
     status_code=status.HTTP_200_OK,
     description="Top up a virtual card form a bank account. Card must be active",

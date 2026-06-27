@@ -6,7 +6,7 @@ from ..emails.base import EmailTemplate
 class VirtualCardCreatedEmail(EmailTemplate):
     template_name = "card_created.html"
     template_name_plain = "card_created.txt"
-    subject = "Your Virtual Card Has beehn Created"
+    subject = "Your Virtual Card Has Been Created"
 
 
 async def send_card_created_email(
@@ -24,14 +24,14 @@ async def send_card_created_email(
         "full_name": full_name,
         "card_type": card_type,
         "currency": currency,
-        "maksed_card_number": masked_card_number,
+        "masked_card_number": masked_card_number,
         "name_on_card": name_on_card,
         "daily_limit": daily_limit,
         "monthly_limit": monthly_limit,
         "expiry_date": expiry_date,
         "site_name": settings.SITE_NAME,
         "support_email": settings.SUPPORT_EMAIL,
-        "created_at": datetime.now().strftime("%Y-%m%-d %H:%M:%S UTC"),
+        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC"),
     }
 
     await VirtualCardCreatedEmail.send_email(email_to=email, context=context)

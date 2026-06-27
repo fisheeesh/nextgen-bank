@@ -11,7 +11,7 @@ For your security, your virtual card has been blocked
   Card Type: {{ card_type }}
   Card Number: {{ masked_card_number }}
   Block Reason: {{ block_reason }}
-  Additional Informtion: {{ blocked_reason_description }}
+  Additional Information: {{ block_reason_description }}
 
   Blocked At: {{ blocked_at }}
   
