@@ -9,7 +9,7 @@ class VirtualCardActivatedEmail(EmailTemplate):
     subject = "Your Virtual Card is Now Active"
 
 
-async def send_card_created_email(
+async def send_card_activated_email(
     email: str,
     full_name: str,
     card_type: str,

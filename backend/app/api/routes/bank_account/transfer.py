@@ -23,7 +23,7 @@ logger = get_logger()
 router = APIRouter(prefix="/bank-account")
 
 
-def validate_uuid(value: str) -> str:
+def validate_uuid4(value: str) -> str:
     try:
         uuid_obj = UUID(value, version=4)
         if str(uuid_obj) != value.lower():
@@ -53,7 +53,7 @@ async def initiate_money_transfer(
     ),
 ) -> TransferResponseSchema:
     try:
-        idempotency_key = validate_uuid(idempotency_key)
+        idempotency_key = validate_uuid4(idempotency_key)
 
         if not idempotency_key:
             raise HTTPException(
