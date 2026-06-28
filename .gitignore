@@ -139,6 +139,11 @@ __pypackages__/
 celerybeat-schedule*
 celerybeat.pid
 
+# ML / MLflow generated artifacts
+backend/app/core/ml/datasets/*.csv
+backend/app/core/ml/models/
+.config/mlflow/
+
 # Redis
 *.rdb
 *.aof
