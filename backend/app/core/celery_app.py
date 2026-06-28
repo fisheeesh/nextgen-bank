@@ -1,5 +1,8 @@
 from celery import Celery
+from celery.schedules import crontab
+
 from .config import settings
+from .ml.config import ml_settings
 
 # $ rabbitmq as connection string and redis as result backend
 
@@ -65,3 +68,44 @@ celery_app.autodiscover_tasks(
     related_name="tasks",
     force=True,
 )
+
+celery_app.conf.beat_scheduler = "redisbeat.RedisScheduler"
+
+
+
+celery_app.conf.beat_schedule = {
+    "train-fraud-model-daily": {
+        "task": "train_fraud_detection_model",
+        "schedule": crontab(hour="2", minute="0"),
+        "kwargs": {
+            "days_lookback": ml_settings.DEFAULT_TRAINING_LOOKBACK_DAYS,
+            "hyperparams": ml_settings.DEFAULT_GRADIENT_BOOSTING_PARAMS,
+        },
+        "options": {"queue": "ml_tasks"},
+    },
+    "train-fraud-model-weekly": {
+        "task": "train_fraud_detection_model",
+        "schedule": crontab(hour="3", minute="0", day_of_week="0"),
+        "kwargs": {
+            "days_lookback": 180,
+            "hyperparams": {
+                **ml_settings.DEFAULT_GRADIENT_BOOSTING_PARAMS,
+                "n_estimators": 200,
+                "learning_rate": 0.05,
+            },
+        },
+        "options": {"queue": "ml_tasks"},
+    },
+    "evaluate-fraud-model-daily": {
+        "task": "evaluate_fraud_model_performance",
+        "schedule": crontab(hour="6", minute="0"),
+        "kwargs": {"days": 7},
+        "options": {"queue": "ml_tasks"},
+    },
+    "auto-deploy-weekly": {
+        "task": "auto_deploy_best_model",
+        "schedule": crontab(hour="8", minute="0", day_of_week="1"),
+        "kwargs": {"performance_threshold": ml_settings.DEFAULT_PERFORMANCE_THRESHOLD},
+        "options": {"queue": "ml_tasks"},
+    },
+}
