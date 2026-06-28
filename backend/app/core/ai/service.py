@@ -1,8 +1,8 @@
 from uuid import UUID
 from datetime import datetime, timezone
-from backend.app.core.ai.enums import AIReviewStatusEnum
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
+from .enums import AIReviewStatusEnum
 from ...core.ai.models import TransactionRiskScore
 from ...core.ai.config import ai_settings
 from ...core.ai.transaction_analyzer import TransactionAnalyzer
@@ -14,8 +14,8 @@ from ...transactions.enums import TransactionFailureReason
 logger = get_logger()
 
 
-class TransctionAIService:
-    def __int__(self, session: AsyncSession):
+class TransactionAIService:
+    def __init__(self, session: AsyncSession):
         self.session = session
         self.analyzer = TransactionAnalyzer()
 

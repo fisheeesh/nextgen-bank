@@ -96,7 +96,7 @@ class TransactionAnalyzer:
     def _check_round_amounts(
         self, transaction: Transaction, history: list[Transaction]
     ) -> float:
-        amount = float(Transaction.amount)
+        amount = float(transaction.amount)
 
         is_round = amount.is_integer()
 

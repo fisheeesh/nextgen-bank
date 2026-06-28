@@ -33,6 +33,7 @@ from .routes.next_of_kin import (
     update as update_next_of_kin,
 )
 from .routes.profile import all_profiles, create, me, update, upload
+from .routes.transaction import fraud_review, risk_history
 
 api_router = APIRouter()
 
@@ -74,3 +75,7 @@ api_router.include_router(activate_card.router, tags=["Virtual Card"])
 api_router.include_router(delete_card.router, tags=["Virtual Card"])
 api_router.include_router(block.router, tags=["Virtual Card"])
 api_router.include_router(topup.router, tags=["Virtual Card"])
+
+# ? AI transaction analysis and fraud detection
+api_router.include_router(fraud_review.router, tags=["Fraud Detection"])
+api_router.include_router(risk_history.router, tags=["Fraud Detection"])

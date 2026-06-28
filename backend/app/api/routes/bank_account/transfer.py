@@ -104,7 +104,7 @@ async def initiate_money_transfer(
             status="pending",
             message="Transfer initiated. Please check your email for OTP verification",
             data={
-                "reason": transaction.reference,
+                "reference": transaction.reference,
                 "amount": format_currency(str(transaction.amount)),
                 "converted_amount": (
                     transaction.transaction_metadata.get("converted_amount", "N/A")
