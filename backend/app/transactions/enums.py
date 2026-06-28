@@ -35,4 +35,4 @@ class TransactionFailureReason(str, Enum):
     INVALID_AMOUNT = "invalid_amount"
     INVALID_ACCOUNT = "invalid_account"
     SELF_TRANSFER = "self_transfer"
-    SUSPICOIOUS_ACTIVITY = "suspicious_activity"
+    SUSPICIOUS_ACTIVITY = "suspicious_activity"

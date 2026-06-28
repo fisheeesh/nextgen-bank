@@ -1,15 +1,19 @@
-from uuid import UUID
 from datetime import datetime, timezone
-from sqlmodel import select
+from typing import Any
+from uuid import UUID
+
+from sqlmodel import desc, select
 from sqlmodel.ext.asyncio.session import AsyncSession
-from .enums import AIReviewStatusEnum
-from ...core.ai.models import TransactionRiskScore
+
+from ...api.routes.auth.deps import SessionDep
 from ...core.ai.config import ai_settings
-from ...core.ai.transaction_analyzer import TransactionAnalyzer
-from ...transactions.models import Transaction
+from ...core.ai.models import TransactionRiskScore
 from ...core.logging import get_logger
-from ...transactions.utils import mark_transaction_failed
+from ...core.ml.deployment import ModelInference, update_transaction_risk
 from ...transactions.enums import TransactionFailureReason
+from ...transactions.models import Transaction
+from ...transactions.utils import mark_transaction_failed
+from .enums import AIReviewStatusEnum
 
 logger = get_logger()
 
@@ -17,51 +21,55 @@ logger = get_logger()
 class TransactionAIService:
     def __init__(self, session: AsyncSession):
         self.session = session
-        self.analyzer = TransactionAnalyzer()
+        self.model_inference = ModelInference(session)
 
     async def analyze_transaction(
         self, transaction: Transaction, user_id: UUID
     ) -> dict:
         try:
-            risk_score, risk_factors = await self.analyzer.analyze_transaction(
-                transaction, user_id, self.session
-            )
+            (
+                fraud_probability,
+                prediction_details,
+            ) = await self.model_inference.predict_fraud(transaction)
 
-            risk_score_record = TransactionRiskScore(
+            risk_score = TransactionRiskScore(
                 transaction_id=transaction.id,
-                risk_score=risk_score,
-                risk_factors=risk_factors,
-                ai_model_version=ai_settings.MODEL_VERSION,
+                risk_score=fraud_probability,
+                risk_factors=prediction_details.get("risk_factors", {}),
+                ai_model_version=prediction_details.get("model_version", "unknown"),
             )
 
-            self.session.add(risk_score_record)
+            self.session.add(risk_score)
 
-            needs_review = risk_score >= ai_settings.RISK_SCORE_THRESHOLD
-
-            transaction.ai_review_status = (
-                AIReviewStatusEnum.FLAGGED
-                if needs_review
-                else AIReviewStatusEnum.CLEARED
+            await update_transaction_risk(
+                transaction=transaction,
+                fraud_probability=fraud_probability,
+                risk_threshold=ai_settings.RISK_SCORE_THRESHOLD,
+                prediction_details=prediction_details,
+                session=self.session,
             )
 
-            await self.session.commit()
-            await self.session.refresh(risk_score_record)
+            needs_review = fraud_probability >= ai_settings.RISK_SCORE_THRESHOLD
 
             response = {
-                "risk_score": risk_score,
-                "risk_factors": risk_factors,
+                "risk_score": fraud_probability,
+                "risk_factors": prediction_details.get("risk_factors", {}),
                 "needs_review": needs_review,
                 "recommendation": "block" if needs_review else "allow",
-                "model_version": ai_settings.MODEL_VERSION,
-                "score_id": risk_score_record.id,
+                "model_version": prediction_details.get("model_version", "unknown"),
+                "score_id": risk_score.id,
+                "model_details": {
+                    "model_name": prediction_details.get("model_name", "unknown"),
+                    "prediction_time": prediction_details.get("prediction_time", None),
+                    "is_fallback": prediction_details.get("is_fallback", False),
+                },
             }
 
             if needs_review:
                 logger.warning(
                     f"High risk transaction detected: {transaction.id}, "
-                    f"Score: {risk_score}, Factors: {risk_factors}"
+                    f"Score: {fraud_probability}, Factors: {prediction_details.get('risk_factors', {})}"
                 )
-
             return response
         except Exception as e:
             logger.error(f"Error analyzing transaction: {e}")
@@ -71,103 +79,162 @@ class TransactionAIService:
                 "risk_factors": {"error": str(e)},
                 "needs_review": True,
                 "recommendation": "block",
-                "model_version": ai_settings.MODEL_VERSION,
+                "model_version": "fallback",
                 "error": str(e),
             }
 
     async def handle_flagged_transaction(
-        self, transaction: Transaction, risk_analysis: dict
+        self, transaction: Transaction, risk_analysis: dict[str, Any]
     ) -> None:
         try:
             await mark_transaction_failed(
                 transaction=transaction,
-                reason=TransactionFailureReason.SUSPICOIOUS_ACTIVITY,
+                reason=TransactionFailureReason.SUSPICIOUS_ACTIVITY,
                 details={
                     "risk_score": risk_analysis["risk_score"],
                     "risk_factors": risk_analysis["risk_factors"],
-                    "ai_model_version": risk_analysis["model_version"],
+                    "model_version": risk_analysis.get("model_version", "unknown"),
+                    "model_details": risk_analysis.get("model_details", {}),
                 },
                 session=self.session,
-                error_message="This transaction has been flagged as potentially fraudulent. An account executive will review the transaction, before it either approved or rejecte",
+                error_message="This transaction has been flagged as potentially fraudulent. An account executive "
+                "will review the transaction, before its "
+                "either approved or rejected",
             )
 
             transaction.ai_review_status = AIReviewStatusEnum.FLAGGED
-
             await self.session.commit()
         except Exception as e:
             logger.error(f"Error handling flagged transaction: {str(e)}")
             raise
 
-    async def get_transaction_risk_history(
+    async def get_user_transaction_risk_history(
         self,
         user_id: UUID,
         start_date: datetime | None = None,
         end_date: datetime | None = None,
         min_risk_score: float | None = None,
-    ) -> list[TransactionRiskScore]:
+        limit: int = 20,
+    ) -> list[dict[str, Any]]:
         try:
-            query = (
-                select(TransactionRiskScore)
-                .join(Transaction)
-                .where(Transaction.sender_id == user_id)
+            stmt = (
+                select(Transaction, TransactionRiskScore)
+                .join(TransactionRiskScore)
+                .where(
+                    Transaction.id == TransactionRiskScore.transaction_id,
+                    Transaction.sender_id == user_id,
+                )
             )
-
             if start_date:
-                query = query.where(TransactionRiskScore.created_at >= start_date)
+                stmt = stmt.where(TransactionRiskScore.created_at >= start_date)
 
             if end_date:
-                query = query.where(TransactionRiskScore.created_at <= end_date)
+                stmt = stmt.where(TransactionRiskScore.created_at <= end_date)
 
-            if min_risk_score:
-                query = query.where(TransactionRiskScore.risk_score >= min_risk_score)
+            if min_risk_score is not None:
+                stmt = stmt.where(TransactionRiskScore.risk_score >= min_risk_score)
 
-            result = await self.session.exec(query)
+            stmt = stmt.order_by(desc(TransactionRiskScore.created_at)).limit(limit)
 
-            return list(result)
+            result = await self.session.exec(stmt)
+
+            tx_risk_pairs = result.all()
+
+            response = []
+
+            for tx, risk in tx_risk_pairs:
+                response.append(
+                    {
+                        "transaction_id": str(tx.id),
+                        "reference": tx.reference,
+                        "amount": str(tx.amount),
+                        "date": tx.created_at.isoformat(),
+                        "risk_score": risk.risk_score,
+                        "risk_factors": risk.risk_factors,
+                        "ai_review_status": tx.ai_review_status,
+                        "model_version": risk.ai_model_version,
+                    }
+                )
+            return response
+
         except Exception as e:
             logger.error(f"Error fetching risk history: {str(e)}")
             raise
 
-    async def mark_confirmed_fraud(
-        self, transaction_id: UUID, reviewr_id: UUID, notes: str | None = None
-    ) -> TransactionRiskScore:
-        try:
-            query = (
-                select(Transaction, TransactionRiskScore)
-                .join(TransactionRiskScore)
-                .where(Transaction.id == transaction_id)
+
+async def review_flagged_transaction(
+    self,
+    transaction_id: UUID,
+    reviewer_id: UUID,
+    is_fraud: bool,
+    session: SessionDep,
+    notes: str | None = None,
+    approve_transaction: bool = False,
+) -> dict[str, Any]:
+    try:
+        tx_stmt = (
+            select(Transaction, TransactionRiskScore)
+            .join(TransactionRiskScore)
+            .where(
+                Transaction.id == TransactionRiskScore.transaction_id,
+                Transaction.id == transaction_id,
+            )
+        )
+
+        result = await session.exec(tx_stmt)
+        tx_risk = result.first()
+
+        if not tx_risk:
+            raise ValueError(
+                f"Transaction {transaction_id} not found or has no risk score"
             )
 
-            result = await self.session.exec(query)
-            transaction_data = result.first()
+        transaction, risk_score = tx_risk
 
-            if not transaction_data:
-                raise ValueError(
-                    f"No risk score found for transaction {transaction_id}"
-                )
+        risk_score.is_confirmed_fraud = is_fraud
+        risk_score.reviewed_by = reviewer_id
 
-            transaction, risk_score = transaction_data
+        transaction.ai_review_status = (
+            AIReviewStatusEnum.CONFIRMED_FRAUD
+            if is_fraud
+            else AIReviewStatusEnum.CLEARED
+        )
 
-            risk_score.is_confirmed_fraud = True
+        if not transaction.transaction_metadata:
+            transaction.transaction_metadata = {}
 
-            risk_score.reviewed_by = reviewr_id
+        transaction.transaction_metadata["fraud_review"] = {
+            "reviewed_at": datetime.now(timezone.utc).isoformat(),
+            "reviewed_by": str(reviewer_id),
+            "is_fraud": is_fraud,
+            "notes": notes or "",
+        }
 
-            if transaction:
-                transaction.ai_review_status = AIReviewStatusEnum.CONFIRMED_FRAUD
+        if approve_transaction and not is_fraud:
+            from ...api.services.transaction import (
+                _complete_approved_transfer,
+                _complete_approved_withdrawal,
+            )
 
-                if not transaction.transaction_metadata:
-                    transaction.transaction_metadata = {}
+            if transaction.transaction_type == "Transfer":
+                await _complete_approved_transfer(transaction, session)
+            elif transaction.transaction_type == "Withdrawal":
+                await _complete_approved_withdrawal(transaction, session)
 
-                transaction.transaction_metadata["fraud_review"] = {
-                    "confirmed_at": datetime.now(timezone.utc).isoformat(),
-                    "reviewed_by": str(reviewr_id),
-                    "notes": notes,
-                }
+        session.add(transaction)
+        session.add(risk_score)
 
-            await self.session.commit()
-            await self.session.refresh(risk_score)
+        await session.commit()
 
-            return risk_score
-        except Exception as e:
-            logger.error(f"Error marking confirmed fraud: {str(e)}")
-            raise
+        return {
+            "status": "success",
+            "transaction_id": str(transaction.id),
+            "is_fraud": is_fraud,
+            "approved": approve_transaction and not is_fraud,
+            "new_status": transaction.ai_review_status,
+        }
+    except Exception as e:
+        logger.error(f"Error reviewing flagged transaction: {str(e)}")
+
+        await session.rollback()
+        raise
