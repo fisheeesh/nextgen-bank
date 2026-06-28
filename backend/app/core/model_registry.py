@@ -7,9 +7,14 @@ from .logging import get_logger
 logger = get_logger()
 
 
+def get_app_package() -> str:
+    return __package__.removesuffix(".core")
+
+
 def discover_models() -> list[str]:
     models_modules = []
     root_path = pathlib.Path(__file__).parent.parent
+    app_package = get_app_package()
 
     logger.debug(f"Searching for models in the root path: {root_path}")
 
@@ -25,9 +30,9 @@ def discover_models() -> list[str]:
             module_path = rel_path.replace(os.path.sep, ".")
 
             if module_path == ".":
-                full_module_path = "app.models"
+                full_module_path = f"{app_package}.models"
             else:
-                full_module_path = f"app.{module_path}.models"
+                full_module_path = f"{app_package}.{module_path}.models"
 
             logger.debug(f"Discovered models file in: {full_module_path}")
 
