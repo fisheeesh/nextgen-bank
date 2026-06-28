@@ -19,6 +19,9 @@ makemigrations:
 migrate:
 	docker compose -f local.yml exec -it api alembic upgrade head
 
+seed-db:
+	docker compose -f local.yml exec api env PYTHONPATH=/src/backend python -m app.core.management.commands.seed_db
+
 history:
 	docker compose -f local.yml exec -it api alembic history
 
