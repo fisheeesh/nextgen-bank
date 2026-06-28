@@ -34,6 +34,7 @@ from .routes.next_of_kin import (
 )
 from .routes.profile import all_profiles, create, me, update, upload
 from .routes.transaction import fraud_review, risk_history
+from .routes.ml import api
 
 api_router = APIRouter()
 
@@ -79,3 +80,6 @@ api_router.include_router(topup.router, tags=["Virtual Card"])
 # ? AI transaction analysis and fraud detection
 api_router.include_router(fraud_review.router, tags=["Fraud Detection"])
 api_router.include_router(risk_history.router, tags=["Fraud Detection"])
+
+# ? Machine Learing
+api_router.include_router(api.router, tags=["Machine Learning"])
