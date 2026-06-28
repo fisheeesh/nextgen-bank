@@ -6,7 +6,7 @@ class ModelStatusEnum(str, Enum):
     READY = "ready"
     DEPLOYED = "deployed"
     FAILED = "failed"
-    ARCHIVEd = "archived"
+    ARCHIVED = "archived"
 
 
 class ModelTypeEnum(str, Enum):
