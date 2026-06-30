@@ -8,7 +8,7 @@ logger = get_logger()
 
 
 def get_app_package() -> str:
-    return __package__.removesuffix(".core")
+    return __package__.removesuffix(".core") # type: ignore
 
 
 def discover_models() -> list[str]:
