@@ -6,8 +6,6 @@ set -o nounset
 
 set -o pipefail
 
-export PYTHONPATH=/src/backend
-
 python -c "from app.core.ml.cleanup import cleanup_mlflow_runs; cleanup_mlflow_runs()"
 
 exec celery \
