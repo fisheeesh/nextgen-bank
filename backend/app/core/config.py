@@ -1,6 +1,5 @@
 from pathlib import Path
 from typing import Literal
-
 import cloudinary
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -9,10 +8,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
 
 
 class Settings(BaseSettings):
-    ENVIRONMENT: Literal["local", "staging", "production"] = "local"
+    ENVIRONMENT: Literal["local", "staging", "production"] = "production"
 
     model_config = SettingsConfigDict(
-        env_file=str(BASE_DIR / ".envs" / ".env.local"),
+        env_file=str(BASE_DIR / ".envs" / ".env.production"),
         env_ignore_empty=True,
         extra="ignore",
     )
@@ -24,7 +23,11 @@ class Settings(BaseSettings):
 
     MAIL_FROM: str = ""
     MAIL_FROM_NAME: str = ""
-    SMTP_HOST: str = "mailpit"
+    MAILGUN_SMTP_SERVER: str = "smtp.mailgun.org"
+    MAILGUN_SMTP_PORT: int = 587
+    MAILGUN_SMTP_USERNAME: str = ""
+    MAILGUN_SMTP_PASSWORD: str = ""
+    SMTP_HOST: str = ""
     SMTP_PORT: int = 1025
     MAILPIT_UI_PORT: int = 8025
 

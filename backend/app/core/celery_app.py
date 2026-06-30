@@ -6,16 +6,21 @@ from .ml.config import ml_settings
 
 # $ rabbitmq as connection string and redis as result backend
 
+redis_url = f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}/{settings.REDIS_DB}"
+broker_url = f"amqp://{settings.RABBITMQ_USER}:{settings.RABBITMQ_PASSWORD}@{settings.RABBITMQ_HOST}:{settings.RABBITMQ_PORT}//"
+
 celery_app = Celery(
     # ? the name of the celery app
     "worker",
     # ? rabbitmq connection string
     # ? amqp -> the advanced message messaging queuing protocol
-    broker=f"amqp://{settings.RABBITMQ_USER}:{settings.RABBITMQ_PASSWORD}@{settings.RABBITMQ_HOST}:{settings.RABBITMQ_PORT}//",
-    backend=f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}/{settings.REDIS_DB}",
+    broker=broker_url,
+    backend=redis_url,
 )
 
 celery_app.conf.update(
+    broker_url=broker_url,
+    result_backend=redis_url,
     # ? json as the serialization format for our tasks
     task_serializer="json",
     # ? enable tracking when tasks start the execution
@@ -69,8 +74,8 @@ celery_app.autodiscover_tasks(
     force=True,
 )
 
-celery_app.conf.beat_scheduler = "redisbeat.RedisScheduler"
-
+celery_app.conf.beat_scheduler = "celery.beat.PersistentScheduler"
+celery_app.conf.beat_schedule_filename = "/tmp/celerybeat-schedule"
 
 
 celery_app.conf.beat_schedule = {
