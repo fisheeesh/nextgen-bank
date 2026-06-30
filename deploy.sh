@@ -20,8 +20,7 @@ git archive --format tar --output ./project.tar main
 
 echo "Uploading project... Please be patient."
 
-rsync -avz --progress ./project.tar
-root@DIGITAL_OCEAN_IP_ADDRESS:/tmp/project.tar
+rsync -avz --progress ./project.tar root@DIGITAL_OCEAN_IP_ADDRESS:/tmp/project.tar
 
 echo "Building and deploying on the server..."
 
